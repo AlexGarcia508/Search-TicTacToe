@@ -22,14 +22,11 @@ def player(board):
     """
     Returns player who has the next turn on a board.
     """
-    count_X = 0
-    count_O = 0
-    for row in board:
-        count_X += row.count(X)
-    for row in board:
-        count_O += row.count(O)
+    #If X is equal to the amount of O's, it is X's turn
+    X_num = sum(row.count(X) for row in board)
+    O_num = sum(row.count(O) for row in board)
 
-    if count_X <= count_O:
+    if X_num <= O_num:
         return X
     else:
         return O
@@ -39,62 +36,133 @@ def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
-    empty_spots = set()
-    for i in range(3):
-        for j in range(3):
-            if board[i][j] == EMPTY:
-                empty_spots.add((i,j))
+    rows = 3
+    cols = 3
 
-    return empty_spots
+    actions = set()
+    for i in range(rows):
+        for j in range(cols):
+            if board[i][j] == EMPTY:
+                actions.add((i,j))
+    return actions
 
 
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    i,j = action
-    new_board = []
-    if board[i][j] != EMPTY:
-        raise Exception("Invalid action: Cell is not empty.")
-    else:
-        for row in board:
-            new_row = []
-            for space in row:
-                new_row.append(space)
-            new_board.append(new_row)
-        new_board[i][j] = player(board)
+    if (action == None) or (board[action[0]][action[1]] is not EMPTY):
+        raise Exception("Invalid action")
+    new_board = [row[:] for row in board]
+    if new_board[action[0]][action[1]] == EMPTY:
+        new_board[action[0]][action[1]] = player(board)
         return new_board
-
 
 
 def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
-    raise NotImplementedError
+    #Check horizontally
+    for row in board:
+        if row[0] == row[1] == row[2]:
+            if row[0] is not EMPTY:
+                return row[0]
 
+    #Checks vertically
+    for col in range(3):
+        if board[0][col] == board[1][col] == board[2][col]:
+            if board[0][col] is not EMPTY:
+                return board[0][col]
+
+    #Checks diagonals
+    if board[0][0] == board[1][1] == board[2][2] and board[0][0] is not EMPTY:
+        return board[0][0]
+    if board[0][2] == board[1][1] == board[2][0] and board[0][2] is not EMPTY:
+        return board[0][2]
+
+    #If tie/no three in a row
+    return None
 
 def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    raise NotImplementedError
+    #Three in a row is found
+    if winner(board) is not None:
+        return True
+
+    #There is still an empty spot
+    for row in board:
+        if EMPTY in row:
+            return False
+
+    #Will return True if all rows are filled
+    return True
 
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
+
+    #If X wonw
     if winner(board) == X:
         return 1
+
+    #If O won
     elif winner(board) == O:
         return -1
+
+    #If tie
     else:
         return 0
-
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    if terminal(board):
+        return None
+
+    #Checks who's turn it in
+    if player(board) == X:
+        #If AI is X, uses min_value to decrease chances of X winning
+        calucation = -math.inf
+        best_action = None
+        for action in actions(board):
+            #Calculates min by taking each avaiable action of board and putting it into results
+            min = min_value(result(board, action))
+            if min > calucation:
+                calucation = min
+                best_action = action
+        return best_action
+    else:
+        #If AI is O, uses max_value to increase chances of X winning
+        calucation = math.inf
+        best_action = None
+        for action in actions(board):
+            #Calculates max by taking each avaiable action of board and putting it into results
+            max = max_value(result(board, action))
+            if max < calucation:
+                calucation = max
+                best_action = action
+        return best_action
+
+
+
+def max_value(board):
+    if terminal(board):
+        return utility(board)
+    v = -math.inf
+    for action in actions(board):
+        v = max(v, min_value(result(board, action)))
+    return v
+
+def min_value(board):
+    if terminal(board):
+        return utility(board)
+    v = math.inf
+    for action in actions(board):
+        v = min(v, max_value(result(board, action)))
+    return v
