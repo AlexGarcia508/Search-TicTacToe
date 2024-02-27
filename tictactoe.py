@@ -52,7 +52,19 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    raise NotImplementedError
+    i,j = action
+    new_board = []
+    if board[i][j] != EMPTY:
+        raise Exception("Invalid action: Cell is not empty.")
+    else:
+        for row in board:
+            new_row = []
+            for space in row:
+                new_row.append(space)
+            new_board.append(new_row)
+        new_board[i][j] = player(board)
+        return new_board
+
 
 
 def winner(board):
