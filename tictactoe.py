@@ -2,6 +2,21 @@
 Tic Tac Toe Player
 """
 
+"""
+CECS 451 Sec 02
+Student Names:
+Alex Garcia 
+Chase Calero 
+Shivkumar Manek 
+Travis Nguyen 
+Vincent Tran
+
+Summary:
+Most of the coding was straight forward. All of the functions were names what they were suppose to do. The only ones that was confusing was actions, results, and minimax.
+Actions and results were a bit confusing because we didn't realized that it was suppose to use player(board) to decide who's turn it is. While minimax was confusing because
+that was the actual AI part. Thanks to the help of the sides, we were able to figure out that min and max was suppose to increase or decrease the chances of X or O winning.
+"""
+
 import math
 
 X = "X"
@@ -22,7 +37,8 @@ def player(board):
     """
     Returns player who has the next turn on a board.
     """
-    #If X is equal to the amount of O's, it is X's turn
+
+    #If X is equal to the amount of O's, it is X's turn. This is mainly for the bot.
     X_num = sum(row.count(X) for row in board)
     O_num = sum(row.count(O) for row in board)
 
